@@ -12,7 +12,6 @@ exports.handler = async function(event, context) {
         }
     });
 
-
     if (!response.ok) {
         return { statusCode: response.status, body: response.statusText };
     }
