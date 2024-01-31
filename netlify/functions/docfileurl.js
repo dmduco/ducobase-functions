@@ -5,15 +5,13 @@ exports.handler = async function(event, context) {
     const [documentId, language] = path.split('/').slice(-2); // Extract documentId and language from URL
 
     // Fetch data from Grist
-    const response = await fetch(`https://{subdomain}.getgrist.com/api/docs/{docId}/tables/Documentfile/records`, {
+    const response = await fetch(`https://{subdomain}.getgrist.com/api/docs/{docId}/tables/Documentfile/records?filter=Document_ID == "${documentId}" AND Language LIKE "%${language}%" AND Is_most_recent_final_file == true`, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${process.env.GRIST_API_KEY}` // Replace with your Grist API key
-        },
-        body: JSON.stringify({
-            filter: `Document_ID == "${documentId}" AND Language LIKE "%${language}%" AND Is_most_recent_final_file == true`
-        })
+            'Authorization': `Bearer ${process.env.API_KEY}` // Replace with your Grist API key
+        }
     });
+
 
     if (!response.ok) {
         return { statusCode: response.status, body: response.statusText };
