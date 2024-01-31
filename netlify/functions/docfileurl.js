@@ -1,8 +1,8 @@
 exports.handler = async function(event, context) {
-    const GRIST_SUBDOMAIN = 'your-grist-subdomain';
-    const DOC_ID = 'your-doc-id';
-    const TABLE_ID = 'your-table-id';
-    const API_KEY = 'your-api-key';
+    const GRIST_SUBDOMAIN = process.env.GRIST_SUBDOMAIN;
+    const DOC_ID = process.env.DOC_ID;
+    const TABLE_ID = process.env.TABLE_ID;
+    const API_KEY = process.env.API_KEY;
 
     const response = await fetch(`https://${GRIST_SUBDOMAIN}.getgrist.com/api/docs/${DOC_ID}/tables/${TABLE_ID}/data`, {
         method: 'GET',
