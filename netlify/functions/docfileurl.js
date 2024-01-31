@@ -1,28 +1,32 @@
-exports.handler = async function(event, context) {
-    const GRIST_SUBDOMAIN = process.env.GRIST_SUBDOMAIN;
-    const DOC_ID = process.env.DOC_ID;
-    const TABLE_ID = process.env.TABLE_ID;
-    const API_KEY = process.env.API_KEY;
+const fetch = require('node-fetch');
 
-    const response = await fetch(`https://${GRIST_SUBDOMAIN}.getgrist.com/api/docs/${DOC_ID}/tables/${TABLE_ID}/data`, {
+exports.handler = async function(event, context) {
+    const { path } = event;
+    const [documentId, language] = path.split('/').slice(-2); // Extract documentId and language from URL
+
+    // Fetch data from Grist
+    const response = await fetch(`https://{subdomain}.getgrist.com/api/docs/{docId}/tables/Documentfile/records`, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${API_KEY}`
-        }
+            'Authorization': `Bearer ${process.env.GRIST_API_KEY}` // Replace with your Grist API key
+        },
+        body: JSON.stringify({
+            filter: `Document_ID == "${documentId}" AND Language LIKE "%${language}%" AND Is_most_recent_final_file == true`
+        })
     });
 
+    if (!response.ok) {
+        return { statusCode: response.status, body: response.statusText };
+    }
+
     const data = await response.json();
+    const record = data[0]; // Assuming the first record is the most recent one
 
-    const documentId = event.pathParameters.documentId;
-    const language = event.pathParameters.language;
-
-    const row = data.find(row => row['Document_ID'] === documentId && row['Language'].includes(language) && row['Is_most_recent_final_file']);
-
+    // Redirect to the URL of the file
     return {
         statusCode: 301,
         headers: {
-            Location: row['URL']
-        },
-        body: ''
+            Location: record.URL
+        }
     };
 };
